@@ -1,4 +1,30 @@
 import os
+import time
+import threading
+
+exitFlag = 0
+
+
+class myThread(threading.Thread):
+    def __init__(self, threadID, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+
+    def run(self):
+        print("Starting " + self.name)
+        print_time(self.name, 5, self.counter)
+        print("Exiting " + self.name)
+
+
+def print_time(threadName, counter, delay):
+    while counter:
+        if exitFlag:
+            threadName.exit()
+        time.sleep(delay)
+        print(threadName, time.ctime(time.time()))
+        counter -= 1
 
 
 def dictConvert():
@@ -25,7 +51,13 @@ for root, dirs, files in os.walk("input_files"):
 
 # If text file exist
 if txtFiles:
-    for file in txtFiles:
+    length = len(txtFiles)
+    for i in range(length):
+        # creating thread for each file
+        var = "thread_" + str(i + 1)
+        var = myThread(i+1, "Thread-"+str(i+1), i+1)
+        var.start()
+        file = txtFiles[i]
         f = open(file, "r")
         newFile = "output_files\\" + file.split("\\")[-1]
         f_out = open(newFile, "w")
@@ -36,4 +68,3 @@ if txtFiles:
                 if character in lookup:
                     character = lookup[character]
                 f_out.write(character)
-
